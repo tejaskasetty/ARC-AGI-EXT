@@ -1,0 +1,6 @@
+beartype
+pre-commit
+numpy
+pandas
+flask
+flask-cors

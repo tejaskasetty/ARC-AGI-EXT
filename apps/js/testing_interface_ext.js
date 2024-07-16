@@ -11,6 +11,10 @@ var EDITION_GRID_HEIGHT = 500;
 var EDITION_GRID_WIDTH = 500;
 var MAX_CELL_SIZE = 100;
 
+var CLOUD_DATA_SOURCE = 'https://api.github.com/repos/fchollet/ARC/contents/data/';
+var LOCAL_DATA_SOURCE = 'http://localhost:3000/data/';
+
+var NUM_OF_TASKS = 7;
 
 function resetTask() {
     CURRENT_INPUT_GRID = new Grid(3, 3);
@@ -111,6 +115,11 @@ function fillPairPreview(pairId, inputGrid, outputGrid) {
     fitCellsToContainer(jqOutputGrid, outputGrid.height, outputGrid.width, 200, 200);
 }
 
+function setNavigationButtons(task_id) {
+    $("#prev_task_btn").prop('disabled', task_id == 1 || task_id == null);
+    $("#next_task_btn").prop('disabled', task_id == NUM_OF_TASKS || task_id == null);
+}
+
 function loadJSONTask(train, test) {
     resetTask();
     $('#modal_bg').hide();
@@ -138,7 +147,7 @@ function loadJSONTask(train, test) {
 }
 
 function display_task_name(task_name, task_index, number_of_tasks) {
-    big_space = '&nbsp;'.repeat(4); 
+    big_space = '&nbsp;'.repeat(4);
     document.getElementById('task_name').innerHTML = (
         'Task name:' + big_space + task_name + big_space + (
             task_index===null ? '' :
@@ -170,65 +179,60 @@ function loadTaskFromFile(e) {
         $('#load_task_file_input')[0].value = "";
         display_task_name(file.name, null, null);
         $("#task_id_input_2").val('');
-        $("#prev_task_btn").prop('disabled', true);
-        $("#next_task_btn").prop('disabled', true);
+        setNavigationButtons(null);
     };
     reader.readAsText(file);
 }
 
 function loadTaskById(subset, task_index) {
-    $.getJSON("https://api.github.com/repos/fchollet/ARC/contents/data/" + subset, function(tasks) {
-        var task = tasks[task_index];
-        $.getJSON(task["download_url"], function(json) {
+    if (task_index < 1 || task_index > 400) {
+        errorMsg('Invalid Task ID. Please enter a valid task ID');
+        return;
+    }
+
+    $.getJSON(LOCAL_DATA_SOURCE + subset, { id: task_index-1}, function(json) {
             try {
-                train = json['train'];
-                test = json['test'];
+                train = json['data']['train'];
+                test = json['data']['test'];
+                task_name = json['name'];
+                tasks_length = json['length'];
             } catch (e) {
                 errorMsg('Bad file format');
                 return;
             }
             loadJSONTask(train, test);
             //$('#load_task_file_input')[0].value = "";
-            infoMsg("Loaded task training/" + task["name"]);
-            display_task_name(task['name'], task_index, tasks.length);
+            infoMsg("Loaded task training/" + task_name);
+            display_task_name(task_name, task_index, tasks_length);
             $('#task_id_input_2').val(task_index);
-            $("#prev_task_btn").prop('disabled', false);
-            $("#next_task_btn").prop('disabled', false);
-        })
-        .error(function(){
-          errorMsg('Error loading task');
-        });
-    })
-    .error(function(){
-      errorMsg('Error loading task list');
+            setNavigationButtons(task_index);
+    }).error(function() {
+            errorMsg('Error loading task by Id');
     });
 }
 
 function randomTask() {
     var subset = "training";
-    $.getJSON("https://api.github.com/repos/fchollet/ARC/contents/data/" + subset, function(tasks) {
-        var task_index = Math.floor(Math.random() * tasks.length)
-        var task = tasks[task_index];
-        $.getJSON(task["download_url"], function(json) {
-            try {
-                train = json['train'];
-                test = json['test'];
-            } catch (e) {
-                errorMsg('Bad file format');
-                return;
-            }
-            loadJSONTask(train, test);
-            //$('#load_task_file_input')[0].value = "";
-            infoMsg("Loaded task training/" + task["name"]);
-            display_task_name(task['name'], task_index, tasks.length);
-            $('#task_id_input_2').val(task_index);
-        })
-        .error(function(){
-          errorMsg('Error loading task');
-        });
+    var task_index = Math.floor(Math.random() * NUM_OF_TASKS) + 1;
+    $.getJSON(LOCAL_DATA_SOURCE + subset, { id : task_index-1 }, function(json) {
+        try {
+            train = json['data']['train'];
+            test = json['data']['test'];
+            task_name = json['name'];
+            tasks_length = json['length'];
+        } catch (e) {
+            errorMsg('Bad file format');
+            return;
+        }
+        loadJSONTask(train, test);
+        //$('#load_task_file_input')[0].value = "";
+        infoMsg("Loaded task training/" + task_name);
+        display_task_name(task_name, task_index, tasks_length);
+        $('#task_id_input_2').val(task_index);
+        setNavigationButtons(task_index);
     })
     .error(function(){
-      errorMsg('Error loading task list');
+        errorMsg('Error loading task');
     });
 }
 
@@ -243,21 +247,23 @@ function loadTask(element) {
 }
 
 function loadPrevTask() {
-    var curr_task_index = parseInt($('#task_id_input_2').val(), 10);
-    if (curr_task_index == 0) {
-        errorMsg('No previous test input. Pick another file?')
-        return
-    }
-    loadTaskById("training", curr_task_index - 1);
+    var curr_task_index = parseInt($('#task_id_input_2').val(), 10) - 1;
+    // if (curr_task_index == 1) {
+    //     errorMsg('No previous test input. Pick another file?')
+    //     return
+    // }
+    setNavigationButtons(curr_task_index);
+    loadTaskById("training", curr_task_index);
 }
 
 function loadNextTask() {
-    var curr_task_index = parseInt($('#task_id_input_2').val(), 10);
-    if (curr_task_index == 399) {
-        errorMsg('No next test input. Pick another file?')
-        return
-    }
-    loadTaskById("training", curr_task_index + 1);
+    var curr_task_index = parseInt($('#task_id_input_2').val(), 10) + 1;
+    // if (curr_task_index == 400) {
+    //     errorMsg('No next test input. Pick another file?')
+    //     return
+    // }
+    setNavigationButtons(curr_task_index);
+    loadTaskById("training", curr_task_index);
 }
 
 function nextTestInput() {
@@ -364,7 +370,7 @@ $(document).ready(function () {
     $('input[type=radio][name=tool_switching]').change(function() {
         initializeSelectable();
     });
-    
+
     $('input[type=text][name=size]').on('keydown', function(event) {
         if (event.keyCode == 13) {
             resizeOutputGrid();
