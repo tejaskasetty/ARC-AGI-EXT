@@ -19,8 +19,8 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--tasks", nargs="+", help="List of tasks to generate", required=True)
-    parser.add_argument("-n", "--num_samples", type=int, default=10)
+    parser.add_argument("-n", "--num_samples", type=int, default=11)
     # args = parser.parse_args()
     # data = gen_data(args.tasks, args.num_samples)
     task_ids = [1, 2, 5, 372, "x1", "x2", "x3", "x4", "x5"]
-    data = gen_data(task_ids, 10)
+    data = gen_data(task_ids, 20)
