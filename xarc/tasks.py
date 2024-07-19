@@ -3,7 +3,8 @@ from typing import List, Tuple
 
 import numpy as np
 from beartype import beartype
-from utils import find_islands, get_element_with_highest_frequency, insert_pattern_into_canvas
+
+from .utils import find_islands, get_element_with_highest_frequency, insert_pattern_into_canvas
 
 
 class Task(ABC):
