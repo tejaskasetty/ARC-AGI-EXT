@@ -35,5 +35,5 @@ List of tasks which are not present in the ARC-AGI dataset but similar in style 
 3. Fill all the squares with the same color
 4. Fill squares with the max number of colors appearing in 3x3
 5. Nx2 matrix with 2 color vertical stripes. Transforms to alternating colors in adjacent tiles
-6. Convert an X to an O
-7. Convert an X to an O and change color
+6. Rotate the image counter clock-wise
+7. Rotate the image counter clock-wise and change color

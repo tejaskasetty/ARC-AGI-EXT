@@ -6,14 +6,17 @@ from beartype import beartype
 
 from .utils import find_islands, get_element_with_highest_frequency, insert_pattern_into_canvas
 
+TASK_LIST = [1, 2, 372, "x1", "x2", "x3", "x4", "x5", "x6", "x7"]
+
 
 class Task(ABC):
     NUM_COLORS: int = 10
     EMPTY_COLOR = 0
     SEPERATOR_COLOR = 5
     FILL_COLORS = list(set(range(NUM_COLORS)) - {EMPTY_COLOR, SEPERATOR_COLOR})
+    CANVAS_SIZE = 6
 
-    def __init__(self, canvas_size: int = 11):
+    def __init__(self, canvas_size: int = CANVAS_SIZE):
         self.canvas_size = canvas_size
 
     @beartype
@@ -155,7 +158,8 @@ class Taskx1(Task):
 
     @beartype
     def gen_input(self) -> np.ndarray:
-        input_size = np.random.randint(3, self.canvas_size + 1)
+        # input_size = np.random.randint(3, self.canvas_size + 1)
+        input_size = self.canvas_size
         input = np.random.choice([0, self.input_color], size=(input_size, input_size))
         return input
 
@@ -174,7 +178,8 @@ class Taskx2(Task):
 
     @beartype
     def gen_input(self) -> np.ndarray:
-        input_size = np.random.randint(3, self.canvas_size + 1)
+        # input_size = np.random.randint(3, self.canvas_size + 1)
+        input_size = self.canvas_size
         input = np.random.choice([0, self.input_color], size=(input_size, input_size))
         return input
 
@@ -191,6 +196,7 @@ class Taskx3(Task):
 
     @beartype
     def gen_input(self) -> np.ndarray:
+        # input_size = np.random.randint(3, self.canvas_size + 1)
         input_size = self.canvas_size
         input = np.random.choice([0, self.input_color], size=(input_size, input_size), p=[0.7, 0.3])
         return input
@@ -204,12 +210,13 @@ class Taskx3(Task):
 
 class Taskx4(Task):
     def __init__(self, canvas_size: int = 11):
-        self.input_colors = range(1, self.NUM_COLORS)
+        self.input_colors = list(range(1, self.NUM_COLORS))
         super().__init__(canvas_size)
 
     @beartype
     def gen_input(self) -> np.ndarray:
-        input_size = np.random.randint(3, self.canvas_size + 1)
+        # input_size = np.random.randint(3, self.canvas_size + 1)
+        input_size = self.canvas_size
         input = np.random.choice(self.input_colors, size=(input_size, input_size))
         if not self.check_if_valid(input):
             unique, counts = np.unique(input, return_counts=True)
@@ -250,4 +257,43 @@ class Taskx5(Task):
         output = np.copy(input)
         output[1::2, 0] = self.color_2
         output[1::2, 1] = self.color_1
+        return output
+
+
+class Taskx6(Task):
+    def __init__(self, canvas_size: int = 11):
+        self.input_color = np.random.randint(1, self.NUM_COLORS)
+        super().__init__(canvas_size)
+
+    @beartype
+    def gen_input(self) -> np.ndarray:
+        # input_size = np.random.randint(3, self.canvas_size + 1)
+        input_size = self.canvas_size
+        input = np.random.choice([0, self.input_color], size=(input_size, input_size))
+        return input
+
+    @beartype
+    def solve(self, input: np.ndarray) -> np.ndarray:
+        output = np.rot90(input)
+        return output
+
+
+class Taskx7(Task):
+    def __init__(self, canvas_size: int = 11):
+        self.input_color = np.random.randint(1, self.NUM_COLORS)
+        remaining_colors = list(set(range(self.NUM_COLORS)) - {self.EMPTY_COLOR, self.input_color})
+        self.output_color = np.random.choice(remaining_colors)
+        super().__init__(canvas_size)
+
+    @beartype
+    def gen_input(self) -> np.ndarray:
+        # input_size = np.random.randint(3, self.canvas_size + 1)
+        input_size = self.canvas_size
+        input = np.random.choice([0, self.input_color], size=(input_size, input_size))
+        return input
+
+    @beartype
+    def solve(self, input: np.ndarray) -> np.ndarray:
+        output = np.rot90(input.copy())
+        output[output == self.input_color] = self.output_color
         return output

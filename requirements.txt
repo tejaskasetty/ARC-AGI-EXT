@@ -4,3 +4,5 @@ numpy
 pandas
 flask
 flask-cors
+torch
+poetry
