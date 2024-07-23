@@ -1,4 +1,3 @@
-import itertools as it
 import json
 from typing import Any, List, Tuple
 
@@ -45,6 +44,20 @@ def get_element_with_highest_frequency(input: np.ndarray, is_unique=False):
         return unique[np.argmax(counts)] if max_count_elements == 1 else None
 
     return unique[np.argmax(counts)]
+
+
+def insert_pattern_into_canvas(
+    pattern: np.ndarray,
+    canvas: np.ndarray,
+) -> np.ndarray:
+    rp, cp = pattern.shape
+    rc, cc = canvas.shape
+    if rc < rp or cc < cp:
+        raise ValueError("Pattern is larger than canvas")
+    x, y = (rc - rp) // 2, (cc - cp) // 2
+    canvas = np.copy(canvas)
+    canvas[x : x + rp, y : y + cp] = pattern
+    return canvas
 
 
 def convert_to_json(data: List[Tuple[np.ndarray, np.ndarray]]) -> List[dict]:

@@ -14,7 +14,7 @@ var MAX_CELL_SIZE = 100;
 var CLOUD_DATA_SOURCE = 'https://api.github.com/repos/fchollet/ARC/contents/data/';
 var LOCAL_DATA_SOURCE = 'http://localhost:3000/data/';
 
-var NUM_OF_TASKS = 7;
+var NUM_OF_TASKS;
 
 function resetTask() {
     CURRENT_INPUT_GRID = new Grid(3, 3);
@@ -148,6 +148,7 @@ function loadJSONTask(train, test) {
 
 function display_task_name(task_name, task_index, number_of_tasks) {
     big_space = '&nbsp;'.repeat(4);
+    NUM_OF_TASKS = number_of_tasks
     document.getElementById('task_name').innerHTML = (
         'Task name:' + big_space + task_name + big_space + (
             task_index===null ? '' :
@@ -213,11 +214,11 @@ function loadTaskById(subset, task_index) {
 
 function randomTask() {
     var subset = "training";
-    var task_index = Math.floor(Math.random() * NUM_OF_TASKS) + 1;
-    $.getJSON(LOCAL_DATA_SOURCE + subset, { id : task_index-1 }, function(json) {
+    $.getJSON(LOCAL_DATA_SOURCE + subset, function(json) {
         try {
             train = json['data']['train'];
             test = json['data']['test'];
+            task_index = json["task_index"]
             task_name = json['name'];
             tasks_length = json['length'];
         } catch (e) {
@@ -225,7 +226,6 @@ function randomTask() {
             return;
         }
         loadJSONTask(train, test);
-        //$('#load_task_file_input')[0].value = "";
         infoMsg("Loaded task training/" + task_name);
         display_task_name(task_name, task_index, tasks_length);
         $('#task_id_input_2').val(task_index);

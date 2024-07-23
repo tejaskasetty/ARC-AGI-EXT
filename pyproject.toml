@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "xarc"
+version = "0.1.0"
+description = "Package for generating synthetic data with tasks similar to the ones present in ARC AGI dataset."
+authors = ["Tejas Kasetty <tejas.kasetty@mila.quebec>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+numpy = "^1.24.3"
+beartype = "^0.18.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
