@@ -60,7 +60,7 @@ def insert_pattern_into_canvas(
     return canvas
 
 
-def convert_to_json(data: List[Tuple[np.ndarray, np.ndarray]]) -> List[dict]:
-    train = list(map(lambda x: {"input": x[0].tolist(), "output": x[1].tolist()}, data[:-1]))
-    test = {"input": data[-1][0].tolist(), "output": data[-1][1].tolist()}
+def convert_to_json(input: List[np.ndarray], output: List[np.ndarray]) -> List[dict]:
+    train = list(map(lambda x, y: {"input": x.tolist(), "output": y.tolist()}, input[:-1], output[:-1]))
+    test = {"input": input[-1].tolist(), "output": output[-1].tolist()}
     return json.dumps({"train": train, "test": [test]})
