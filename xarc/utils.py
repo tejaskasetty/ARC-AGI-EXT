@@ -1,5 +1,6 @@
 import json
-from typing import Any, List, Tuple
+import pickle
+from typing import Any, List, Literal, Tuple
 
 import numpy as np
 
@@ -64,3 +65,19 @@ def convert_to_json(input: List[np.ndarray], output: List[np.ndarray]) -> List[d
     train = list(map(lambda x, y: {"input": x.tolist(), "output": y.tolist()}, input[:-1], output[:-1]))
     test = {"input": input[-1].tolist(), "output": output[-1].tolist()}
     return json.dumps({"train": train, "test": [test]})
+
+
+def write_to_file(data, dest_file_path: str, format: str = Literal["pickle", "json"]):
+    input, output = data
+    if format == "json":
+        train = list(map(lambda x, y: {"input": x.tolist(), "output": y.tolist()}, input[:-1], output[:-1]))
+        test = {"input": input[-1].tolist(), "output": output[-1].tolist()}
+        json_data = json.dumps({"train": train, "test": [test]})
+        with open(dest_file_path, "w+") as f:
+            f.write(json_data)
+    elif format == "pickle":
+        data = {"x": input, "y": output}
+        with open(dest_file_path, "wb") as f:
+            pickle.dump(data, f)
+
+    return
