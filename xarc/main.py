@@ -12,8 +12,9 @@ if __name__ == "__main__":
     parser.add_argument("-f", "--format", type=str, default="json")
     parser.add_argument("-s", "--seed", type=int, default=0)
     parser.add_argument("-p", "--path", type=str)
+    parser.add_argument("-r", "--random", type=int, default=True)
     args = parser.parse_args()
-    tasks = np.random.choice(TASK_LIST, args.num_tasks).tolist()
+    tasks = np.random.choice(TASK_LIST, args.num_tasks).tolist() if args.random == 1 else TASK_LIST
     data = generate_data(
         tasks,
         args.num_samples,

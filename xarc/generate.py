@@ -9,6 +9,7 @@ import torch
 from tqdm import tqdm
 
 from . import tasks as tk
+from .tasks import TASK_LIST
 from .utils import convert_to_json, write_to_file
 
 
@@ -70,3 +71,20 @@ def generate_data(
         return torch.stack(x), torch.stack(y), task_params
 
     return None
+
+
+def generate_data_with_options(
+    tasks: List[str],
+    num_samples: int,
+    canvas_size: int = tk.Task.CANVAS_SIZE,
+    random: int = 1,
+    seed: int | None = None,
+    verbose: bool = False,
+):
+    if seed is not None:
+        np.random.seed(seed)
+    for i, task in enumerate(tqdm(tasks, desc="Task number")):
+        verbose and print(f"Generating for task{task}.")
+        task_cls = getattr(tk, f"Task{task}")
+        dataset = task_cls(canvas_size).run(num_samples, include_options=True)
+        yield dataset
